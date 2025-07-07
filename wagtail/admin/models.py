@@ -100,3 +100,27 @@ class EditingSession(models.Model):
         indexes = [
             models.Index(fields=["content_type", "object_id"]),
         ]
+
+
+from wagtail.models import Page
+from wagtail.admin.panels import TitleFieldPanel
+from django import forms
+
+class HomePage(Page):   #Teste 1.0, 2.0 e 2.3
+    content_panels = [
+        TitleFieldPanel("title", read_only=True)
+  ]
+
+# class HomePage(Page):   #Teste 1.1
+#     pass
+    
+
+# class ReadOnlyTextInput(forms.TextInput): #Teste 2.1
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.attrs['readonly'] = True
+
+# class HomePage(Page):
+#     content_panels = [
+#         TitleFieldPanel("title", widget=ReadOnlyTextInput)  
+#   ]

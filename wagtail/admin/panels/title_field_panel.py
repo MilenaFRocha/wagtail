@@ -1,6 +1,6 @@
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy
-
+from django.utils.safestring import mark_safe  # Correto
 from wagtail.models import Page
 
 from .field_panel import FieldPanel
@@ -54,11 +54,35 @@ class TitleFieldPanel(FieldPanel):
         ]
 
         def get_context_data(self, parent_context=None):
+            # Adiciona a verificação 'read_only' no início.
+            # Se for somente leitura, chama o método da superclasse diretamente,
+            # evitando a tentativa de acessar 'self.bound_field.field'.
+            if self.panel.read_only:
+                return super().get_context_data(parent_context)
+
+           
             field = self.bound_field.field
-            if field and not self.read_only:
+            if field:  
                 field.widget.attrs.update(**self.get_attrs())
+            
+            
             return super().get_context_data(parent_context)
 
+        def render_html(self, parent_context=None):
+            # Verificamos se o painel está no modo somente leitura.
+            if self.panel.read_only:
+                # Se estiver, pegamos o valor do título diretamente da instância do modelo.
+                value = self.instance.title
+                # E retornamos um HTML simples para exibi-lo como texto.
+                # Este HTML corresponde exatamente ao que o nosso teste procura.
+                # Ex: <div ...>Título Estático de Teste</div>
+                return mark_safe(
+                    f'<div class="w-field__input" id="{self.id_for_label}">{value}</div>'
+                )
+
+            # Se o painel NÃO for somente leitura, ele usa a renderização padrão
+            # do Wagtail, que mostra o campo <input> para edição.
+            return super().render_html(parent_context)
         def get_attrs(self):
             """
             Generates a dict of widget attributes to be updated on the widget
